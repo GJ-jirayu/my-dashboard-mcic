@@ -1,0 +1,1020 @@
+<html>
+<head>
+    <style>
+   table.k-focusable{
+    position:absolute;
+    }
+   *{
+   font:Tahoma 12px;
+   }
+    #loading{
+        display: none;
+        position:absolute;
+        z-index:10000;
+        color:white;
+    }
+    .k-grid-content{
+        overflow-y:hidden;
+        color:white;
+    }
+    #selectDepartment{
+    	display:none;
+    }
+    .greenColor{
+    	color:#7cfc00;
+    }
+    .redColor{
+    	color:red;
+    }
+    #dialogBox{
+    	display:none;
+    
+    }
+    #searchArea{
+    float:right;
+    padding:5px;
+    }
+    #jobload{
+    display:inline;
+    }
+    #jobComplete{
+    display:inline;
+    }
+    .boxContent{
+    display:block;
+    width:115px;
+    float:left;
+    }
+    #planQty{
+    display:block;
+    width:65px;
+    margin:1px;
+    border:1px solid #dddddd;
+    height:19px;
+    }
+    .number{
+    text-align:right;
+    margin-right:2px;
+    }
+    #actaulQty{
+    display:block;
+    width:65px;
+    margin:1px;
+    border:1px solid #dddddd;
+    height:19px;
+    margin-left:10px;
+    }
+    .ganttYellow{
+    background:yellow;
+    }
+    .ganttRed{
+    background:Red;
+    }
+
+	#tooltip{
+	width:auto;
+	height:auto;
+	position:absolute;
+	z-index:10;
+	background:white;
+	display:none;
+	border-radius:5px;
+	border:1px solid #cccccc;
+	cursor:pointer;
+	padding:5px;
+}
+.fontTooltip{
+ font-family:Tahoma;
+ font-size:13px;
+}
+#search1{
+margin-bottom:0;
+}
+
+#searchGrid{
+	color:white;
+}
+#select_veiw{
+padding-top:3px;
+
+}
+
+   
+    </style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="refresh" content="3600"> 
+<link href="css/ui-darkness/jquery-ui-1.8.23.custom.css"  type="text/css" rel="stylesheet">
+<link href="css/manufacturing_dashboard.css" type="text/css" rel="stylesheet" >
+<link href="kendo/styles/kendo.default.min.css" type="text/css" rel="stylesheet" >
+<link href="kendo/styles/kendo.black.min.css" type="text/css" rel="stylesheet" >
+<link href="kendo/styles/kendo.common.min.css" rel="stylesheet" type="text/css">
+<link href="plugin/tooltip.css" rel="stylesheet" type="text/css">
+
+<link rel="stylesheet" href="css/style.css" />
+        
+        
+        <link rel="stylesheet" href="css/bootstrap.css" />
+        <link rel="stylesheet" href="css/prettify.css" />
+       
+       <!-- 
+		<style type="text/css">
+			body {
+				font-family: Helvetica, Arial, sans-serif;
+				font-size: 13px;
+				padding: 0 0 50px 0;
+			}
+			.contain {
+				width: 800px;
+				margin: 0 auto;
+			}
+			h1 {
+				margin: 40px 0 20px 0;
+			}
+			h2 {
+				font-size: 1.5em;
+				padding-bottom: 3px;
+				border-bottom: 1px solid #DDD;
+				margin-top: 50px;
+				margin-bottom: 25px;
+			}
+			table th:first-child {
+				width: 150px;
+			}
+		</style>
+		
+		 -->
+<script src="js/jquery-1.7.2.min.js"></script>		 
+<script src="kendo/js/kendo.all.min.js"></script>
+<script src="js/jquery-ui-1.8.23.custom.min.js"></script>
+<script type="text/javascript" src="dev_js/manufacturing_dashboard.js"></script>
+<script type="text/javascript" src="plugin/jquery.tooltip.js"></script>
+
+
+	<script src="js/jquery.fn.gantt.js"></script>
+	<script src="js/bootstrap-tooltip.js"></script>
+	<script src="js/bootstrap-popover.js"></script>
+	<script src="js/prettify.js"></script>
+    <script>
+    
+    //function convert date to timestamp
+    //date:12-11-2012 20:16:01
+    //timestamp:1352726161000
+    
+    //date:13-11-2012 20:16:01
+    //timestamp:1352726161000
+    
+    //date:14-11-2012 20:16:01
+    //timestamp:1352898961000
+    
+    //date:15-11-2012 20:16:01
+    //timestamp:1352985361000
+    
+    //date:16-11-2012 20:16:01
+    //timestamp:1353071761000
+    
+    //date:17-11-2012 20:16:01
+    //timestamp:1353158161000
+    
+    //date:18-11-2012 20:16:01
+    //timestamp:1353244561000
+    
+    //date:18-12-2012 20:16:01
+    //timestamp:1355836561000
+    
+    
+    var myDate="14-11-2012 20:16:01";
+    myDate=myDate.split("-");
+    var newDate=myDate[1]+"/"+myDate[0]+"/"+myDate[2];
+    //alert(new Date(newDate).getTime());
+    
+   
+    $(document).ready(function(){
+    	
+    	//define element search add in tab  on left and top position.
+    	$(".ui-tabs-nav").append("<div id='searchArea'>Search: <input type='text' id='search1' name='search1'><button id='submitSearh'>Search</button></div>");
+
+		
+    	var selectAuto = function(){
+    		$.ajax({
+    			url:'autoSelect.jsp',
+    			type:'get',
+    			dataType:'json',
+    			success:function(data){
+    				
+    			searchFunction(data[0]);
+    				
+    			}
+    		});
+    	};
+    	selectAuto();
+    	var searchFunction  = function(paramDataSearAuto){
+    		$("#search1").kendoAutoComplete({
+    			dataSource: paramDataSearAuto,
+    		    filter: "startswith",
+    		    placeholder: "Select Job No...",
+    		    //separator: ", "
+    		});
+    	};
+
+    	//gridSearch End
+
+
+    	$("#submitSearh").click(function(){
+    		
+    		//Dialogbox alert grid result when click search submit
+    		
+    		
+    		$("#dialogBox").dialog({
+    			height: 450,
+    			width: 1300,
+    	        modal: true,
+    	        title:"ผลการค้นหา"
+    		}).hide();
+    		$(".ui-dialog-content").css({"padding":"0px"});
+    		$("#dialogBox").show(1000);
+    		
+    		//call content Job equere Machine by ajax
+    		$.ajax({
+    			url:'manufacturing_search_job.jsp',
+    			type:'get',
+    			dataType:'json',
+    			data:{'paramJob':$("#search1").val()},
+    			success:function(data){
+    				//alert(data);
+    				var dataSource="";
+    				dataSource+="[";
+    				$.each(data,function(index,indexEntry){
+    					console.log(indexEntry[0]+""+indexEntry[1]+""+indexEntry[2]+""+indexEntry[3]+""+indexEntry[4]+""+indexEntry[5]+""+indexEntry[6]+""+indexEntry[7]);
+    					if(index==0){
+    						dataSource+="{";
+    					}else{
+    						dataSource+=",{";
+    					}
+    						dataSource+="\"MachineCode\":\""+indexEntry[0]+"\",";
+    						dataSource+="\"Machine\":\""+indexEntry[1]+"\",";
+    						dataSource+="\"MainJob\":\""+indexEntry[2]+"\",";
+    						dataSource+="\"PlanQty\":\""+indexEntry[5]+"\",";
+    						dataSource+="\"ActualQty\":\""+indexEntry[6]+"\",";
+    						dataSource+="\"StartDate\":\""+indexEntry[3]+"\",";
+    						dataSource+="\"EndDate\":\""+indexEntry[4]+"\",";
+    						dataSource+="\"Status\":\""+indexEntry[7]+"\",";
+    					
+    						
+    						dataSource+="}";
+    				});
+    				dataSource+="]";
+    				var objDataSource = eval("("+dataSource+")");
+    				searchFucntion(objDataSource);
+    				
+    				
+    			}
+    			
+    		});
+    		
+    				
+    		
+    		var searchFucntion = function(dataSource){
+    		$("#searchGrid").empty();
+    		$("#searchGrid").kendoGrid({
+    			height: 400,
+    			 pageable: {
+                     refresh: true,
+                     pageSizes: true
+                 },
+    			theme:$(document).data("kendoSkin") || "black",
+				 dataSource: {
+					data:dataSource,
+					 pageSize: 6
+				 },
+			
+                  scrollable:true,
+                  columns: [
+						{
+						    field: "MachineCode",
+						    width:150,
+						    title: "<b>Machine Code</b>"
+						},{
+						    field: "Machine",
+						    width:230,
+						    title: "<b>Machine</b>"
+						},{
+                           field:"MainJob",
+                           width:170,
+                           
+                           title:"<b>Job Name</b>"
+                           
+                       },{
+                           field: "PlanQty",
+                           width:120,
+              
+                           title: "<b>Plan Qty</b>"
+                       },{
+                           field: "ActualQty",
+                           width:120,
+              
+                           title: "<b>Actual Qty</b>"
+                       },{
+                           field: "StartDate",
+                           width:190,
+              
+                           title: "<b>Start Date</b>"
+                       },{
+                           field: "EndDate",
+                           width:190,
+                           title: "<b>End Date</b>"
+                       }
+                       ,{
+                           field: "Status",
+                          
+                           title: "<b>Status</b>"
+                       }
+                       
+                   ]
+               });
+    		$("#searchGrid >.k-grid-content").css({"overflow-y":"hidden"});
+			$(".k-focusable").css({"color":"white"});
+   			};
+
+    	});
+ 
+    	$(".date").kendoDatePicker();
+    	var myDate=new Date;
+    	var year=myDate.getFullYear();
+    	var day =myDate.getDate();
+    	var month=myDate.getMonth();
+    	var currentMonthForm= (month+1)+"/01/"+year;
+    	var currentMonthTo= (month+1)+"/"+day+"/"+year;
+    	
+    	$("#from_date").val(currentMonthForm);
+    	$("#to_date").val(currentMonthTo);
+    	
+    	//$(".listSelect").kendoDropDownList();
+    	
+    });
+
+$(function() {
+	var objDataSourceGlobal="";
+			//"use strict";
+	var gantt=function(argDataSource,argScale){
+		var argScale =(typeof argScale==="undefined")?"days":argScale;
+		var argDataSource = (typeof argDataSource==="undefined")?"":argDataSource;
+		//alert("argDataSource"+argDataSource);
+		
+			$(".gantt").gantt({
+				source: argDataSource,
+				
+				navigate: "scroll",
+				/*
+				hours
+				days
+				weeks
+				months
+				*/
+				/*
+				scale: "days",
+				*/
+				maxScale: "months",
+				minScale: "days",
+				
+				scale: argScale,
+				//maxScale: "hours",
+				//minScale: "hours",
+				itemsPerPage: 16,
+				/*
+				onItemClick: function(data) {
+					//alert("Item clicked - show some details");
+				},
+				onAddClick: function(dt, rowId) {
+					alert("Empty space clicked - add an item!");
+				}
+				*/
+			});
+			
+			$(".gantt").popover({
+				selector: ".bar",
+				title: "I'm a popover",
+				content: "And I'm the content of said popover."
+			});
+
+			prettyPrint();
+			
+			//defineHeader();
+			
+			
+	};//End gantt		
+	var defineHeader = function(){
+		var html="<table id='headerTable' width='100%'><tr><td width='200'><b>MACHINE</b></td><td width='100'><b>JOB</b></td><td width='100'><b>SUB JOB</b></td><td><b>PLAN QTY</b></td><td><b>ACTUAL QTY</b></td></tr></table>";
+		setTimeout(function(){
+			//alert($(".leftPanel div.spacer").length);
+			$(".leftPanel div.spacer").empty();
+			$(".leftPanel div.spacer").html(html);
+			
+			var heightTitle = $(".leftPanel>.spacer").attr("style").split(";");
+			var arHeightTitle=parseInt(heightTitle[0].substring("7"));
+			
+			$("#headerTable").css({"margin-top":""+(arHeightTitle-22)+"px","margin-left":"","font-size":"13px"});
+			//management table header
+		    $("table#headerTable tr").css({"border-top":"1px solid #cccccc","border-bottom":"1px solid #cccccc","background":"#dddddd"});
+		    $("table#headerTable tr td:eq(0)").css({"padding-left":"5px"});
+		    $("table#headerTable tr td").css({"padding":"5px"});
+		    
+		    
+		},1000);
+		
+	};
+
+	//manage manual
+	
+	//function convest date time
+	function convertDate(argDate){
+		 var dateFormat = argDate.substring(0,19);
+		 var myDate=dateFormat;
+		 myDate=myDate.split("-");
+		 var arrayDayTime=myDate[2].split(" ");
+		 var $day=arrayDayTime[0];
+		 var $time=arrayDayTime[1];
+		
+		// var newDate=myDate[1]+"/"+$day+"/"+myDate[0]+" "+$time;
+		 var newDate=myDate[1]+"/"+$day+"/"+myDate[0];
+		 //alert(newDate);
+		 //01/17/2013 00:00:00
+		 return new Date(newDate).getTime();
+		
+		}
+	//function convest date time
+	function convertDate_HIS(argDate){
+		 var dateFormat = argDate.substring(0,19);
+		 var myDate=dateFormat;
+		 myDate=myDate.split("-");
+		 var arrayDayTime=myDate[2].split(" ");
+		 var $day=arrayDayTime[0];
+		 var $time=arrayDayTime[1];
+		
+		 var newDate=myDate[1]+"/"+$day+"/"+myDate[0]+" "+$time;
+		 //var newDate=myDate[1]+"/"+$day+"/"+myDate[0];
+		 //alert(newDate);
+		 //01/17/2013 00:00:00
+		 return new Date(newDate).getTime();
+		
+		}
+	//Add Commas
+	function numberWithCommas(x) {
+	    x = x.toString();
+	    var pattern = /(-?\d+)(\d{3})/;
+	    while (pattern.test(x))
+	        x = x.replace(pattern, "$1,$2");
+	    return x;
+	}
+	var callContentByAjax = function(arg_cate_machine,arg_from_date,arg_to_date,arg_year){
+		
+		var dataSource = "";
+		var objDataSource="";
+		var arg_cate_machine = (typeof arg_cate_machine==="undefined")?"":arg_cate_machine;
+		var arg_from_date = (typeof arg_from_date==="undefined")?"":arg_from_date;
+		var arg_to_date = (typeof arg_to_date==="undefined")?"":arg_to_date;
+		var arg_year = (typeof arg_year==="undefined")?"":arg_year;
+		
+		
+		//alert(arg_from_date);
+		//alert(arg_to_date);
+		//alert(arg_cate_machine);
+		
+	//Start ajax main
+	var i=0;
+	$.ajax({
+		url:'manufacturing_cate_job.jsp',
+		type:'get',
+		dataType:'json',
+		data:{'param_machine':arg_cate_machine},
+		cache:false,
+		success:function(data){
+			//alert(data);
+			var dateFrom="";
+			var dateTo="";
+			dataSource+="[";
+			
+			var j=0;
+			var convertStartDMY=new Array();
+			var convertEndDMY=new Array();
+			
+			var convertStartDMY_HIS=new Array();
+			var convertEndDMY_HIS=new Array();
+			
+			var convertStartDMY2=new Array();
+			var convertEndDMY2=new Array();
+			
+			var convertStartDMY2_HIS=new Array();
+			var convertEndDMY2_HIS=new Array();
+			
+			$.each(data,function(index1,indexIntry){
+				//alert(i);
+				//alert("cate_job"+indexIntry[0]);
+				
+				
+				
+				$.ajax({
+					url:'scope_machine.jsp',
+					type:'get',
+					dataType:'json',
+					async:false,
+					data:{'machine_id':indexIntry[0],'paramFromDate':arg_from_date,'paramToDate':arg_to_date,'paramYear':arg_year},
+					success:function(data){
+						
+						
+						//alert("cate_scopt_date_from111"+data[0][0]);
+						//alert("cate_scopt_date_to"+data[0][1]);
+						
+						 if(data[0][0]!=null && data[0][1]!=null){
+							 if(i==0){
+									//alert("i=="+i);
+								 	dataSource+="{";
+									}else{
+									dataSource+=",{";	
+									}
+							i++;//num around category job
+							 //alert("cate_scopt_date_from222"+data[0][0]);
+						 dateFrom =convertDate(data[0][0]);
+						 dateTo =convertDate(data[0][1]);
+						 //dataSource+="{";
+							dataSource+="name:\""+indexIntry[1]+"\",";
+							//dataSource+="name:\"&nbsp;\",";
+							dataSource+="desc:\" &nbsp;\",";
+							dataSource+="values:[{";
+								dataSource+="from:\"/Date("+dateFrom+")/\",";
+								dataSource+="to:\"/Date("+dateTo+")/\",";
+								dataSource+="label:\""+indexIntry[0]+"\",";
+								dataSource+="customClass:\"ganttBlue\",";
+								dataSource+="}]";
+						dataSource+="}";
+						
+
+						 }
+					}	
+				});
+				
+				//Start ajax sub
+		
+				$.ajax({
+					url:'manufacturing_dashboard.jsp',
+					type:'get',
+					dataType:'json',
+					data:{'machine_id':indexIntry[0],'paramFromDate':arg_from_date,'paramToDate':arg_to_date,'paramYear':arg_year},
+					cache:false,
+					async:false,
+					success:function(data){
+					//alert(data);
+						if(data =="null" || data ==""){
+							console.log("data is empty");
+						}else{
+						
+						//ajax
+						//alert(data);
+						var subDateMonthYear="";
+						
+						
+						$.each(data,function(intry2,indexIntry2){
+							/* prev edit*/
+							subDateMonthYear = indexIntry2[3].split("");
+							//convertStartDMY[intry2]=indexIntry2[3];
+							//convertEndDMY[intry2]=indexIntry2[4];
+							//alert("convertEndDMY[intry2]"+convertEndDMY[intry2]);
+							
+							//edit
+							
+							convertStartDMY[intry2]=convertDate(indexIntry2[3]);
+							convertEndDMY[intry2]=convertDate(indexIntry2[4]);
+							convertStartDMY_HIS[intry2]=convertDate_HIS(indexIntry2[3]);
+							convertEndDMY_HIS[intry2]=convertDate_HIS(indexIntry2[4]);
+							
+							//alert(indexIntry2[3]+"===="+convertStartDMY[intry2]);
+							
+							//console.log("----------------");
+							//console.log("convertStartDMY[intry2]"+convertStartDMY[intry2]);
+							//console.log("StartDMY[3]"+indexIntry2[3]);
+						    //console.log("convertEndDMY[intry2]"+convertEndDMY[intry2]);
+						    //console.log("EndDMY[3]"+indexIntry2[4]);
+						    
+							
+						});
+						//console.log("--------End--------");
+						
+						$.each(data,function(intry3,indexIntry){
+							//alert("date from and date to "+indexIntry[3]+" "+indexIntry[4]);
+							//alert("intry3 "+intry3);
+						dataSource+=",";
+						var dateFrom2 =convertDate(indexIntry[3]);
+						var dateTo2 =convertDate(indexIntry[4]);
+						//manage check job not unique key
+						
+						/*prev edit*/
+						 var subDateMonthYear2 = indexIntry[3].split(" ");
+						 //convertDMY2[intry3]=convertDate(subDateMonthYear2[0]+" 00:00:00");
+						 //convertStartDMY2[intry3]=indexIntry[3];
+						 //convertEndDMY2[intry3]=indexIntry[4];
+						
+						
+						//edit
+						convertStartDMY2[intry3]=convertDate(indexIntry[3]);
+						convertEndDMY2[intry3]=convertDate(indexIntry[4]);
+						convertStartDMY2_HIS[intry3]=convertDate_HIS(indexIntry[3]);
+						convertEndDMY2_HIS[intry3]=convertDate_HIS(indexIntry[4]);
+						
+						//alert("convertStartDMY2="+convertStartDMY2[intry3]);
+						
+						dataSource+="{";
+						
+							dataSource+="name:\"&nbsp;\",";
+							//dataSource+="name:\"&nbsp;\",";
+							var JobName = indexIntry[2];
+							//var subJobName=JobName.substring(0,12);
+							var subJobName=JobName.split("-");
+							//alert("newJob["+subJobName[0]+"-"+subJobName[1]+"]");
+							//alert("oldJob["+$("#oldJobName").val()+"]");
+							var numberActual
+							var numberPlan
+							if(indexIntry[6]==null){
+								numberActual = 0;
+							}else{
+								numberActual = numberWithCommas(indexIntry[6]);
+							}
+							if(indexIntry[5]==null){
+								numberPlan=0;
+							}else{
+								numberPlan=numberWithCommas(indexIntry[5]);
+							}
+							if($("#oldJobName").val()==subJobName[0]+"-"+subJobName[1]){
+								dataSource+="desc:\"<div class='boxContent'>&nbsp;</div><div class='boxContent'>-"+indexIntry[2]+"</div><div class='boxContent number' id='planQty'>"+numberPlan+"</div><div class='boxContent number' id='actaulQty'>"+numberActual+"</div>\",";	
+							}else{
+								dataSource+="desc:\"<div class='boxContent'>"+indexIntry[2]+"</div><div class='boxContent'>&nbsp;</div><div class='boxContent number' id='planQty'>"+numberPlan+"</div><div class='boxContent number' id='actaulQty'>"+numberActual+"</div>\",";
+							}
+							$("#jobName").html("<input type='hidden' name='oldJobName' id='oldJobName' value='"+subJobName[0]+"-"+subJobName[1]+"'>");
+								
+								dataSource+="values:[{";
+								dataSource+="from:\"/Date("+dateFrom2+")/\",";
+								dataSource+="to:\"/Date("+dateTo2+")/\",";
+								dataSource+="label:\"<div class='detailJob' title='<b>Machine</b> "+indexIntry[0]+"<br><b>Job</b> "+indexIntry[2]+"<br><b>Start</b> "+indexIntry[3]+"<br><b>End</b> "+indexIntry[4]+"<br><b>Status</b> "+indexIntry[7]+"'>"+indexIntry[0]+"</div>\",";
+								//alert(indexIntry[8]);
+								
+								
+								if(indexIntry[7]=="Unreleased"){
+									dataSource+="customClass:\"ganttOrange\",";
+								
+								}else if(indexIntry[8]>1){
+									dataSource+="customClass:\"ganttRed\",";
+								}else{
+									dataSource+="customClass:\"ganttGreen\",";
+								}
+								
+								var $j=1;
+								
+								for(var m=0; m<convertStartDMY.length; m++){
+									
+									
+									
+									if((convertStartDMY_HIS[m]==convertStartDMY2_HIS[intry3]) && (indexIntry[8] ==0) || (indexIntry[7]=="Unreleased") ){
+										//dataSource+="customClass:\"ganttGreen\",";
+										if($j==2){
+											//console.log(""+convertStartDMY[m]+"========"+convertStartDMY2[intry3]);
+											dataSource+="customClass:\"ganttRed\",";
+											break;
+										}
+										
+									$j++;
+									}
+
+									
+								}$j=1;
+								//console.log("==============================="+intry3);
+								dataSource+="}]";
+						dataSource+="}";
+						
+						j++;
+						});
+						
+						}//if
+					}
+				});
+				//End ajax sub
+				
+			});
+			
+			dataSource+="]";
+			//console.log(eval("("+dataSource+")"));
+			objDataSource=eval("("+dataSource+")");
+			//console.log(dataSource);
+			//console.log(objDataSource);
+			objDataSourceGlobal=objDataSource;
+			//alert(dataSource);
+			if(dataSource=="[]"){
+				alert("Not found data");
+			}else{
+			
+			gantt(objDataSource,$("#select_veiw_id").val());
+			defineHeader();
+	        tooltip();
+
+			}
+		}
+	});
+	}//function callAjax
+	
+	//End ajax main
+	
+	//callContentByAjax default frist start
+	callContentByAjax("",$("#from_date").val(),$("#to_date").val(),"");
+	
+	
+	//submit by ok button here.
+	$("#submit1").click(function(){
+		
+				callContentByAjax($("select#machine").val(),$("#from_date").val(),$("#to_date").val(),$("#year").val());
+				//callContentByAjax($("select#machine").val(),"01/19/2011","11/19/2012","");
+		        //callContentByAjax($("select#machine").val());
+		        
+				
+	});
+	//select view scheduler
+	$("select#select_veiw_id").change(function(){
+		//$(this).val();
+		gantt(objDataSourceGlobal,$(this).val());
+		defineHeader();
+		tooltip();
+	});
+
+	//define
+	$(".nav-link").live("click",function(){
+		defineHeader();
+		tooltip();
+	});
+	$(".nav-page-back").live("click",function(){
+		var numBack =parseInt($(".page-number>span").text());
+		if(numBack!=1){
+		numBack = numBack-1;
+				setTimeout(function(){
+					
+					$(".dataPanel .bar").each(function(){
+						//console.log($(this).attr("style"));
+						//alert("hello world");
+						var oldAttr =$(this).attr("style");
+						var subOldAttr = oldAttr.split(";");
+						
+						var numMaginTop =parseInt(subOldAttr[1].substring("12"));
+						
+						var numPageNumMaginTop=(numBack-1)*384;
+						var NumPage = numMaginTop-numPageNumMaginTop;
+						$(this).css({"margin-top":NumPage+"px"});
+					});
+					
+				},1000);
+		}
+	});
+	$(".nav-page-next").live("click",function(){
+		var numNext =parseInt($(".page-number>span").text());
+		var maxNext = parseInt($(".page-number>span").text().substring(5));
+		//alert(maxNext);
+		if(numNext<maxNext){
+		numNext = numNext+1;
+		setTimeout(function(){
+			
+			$(".dataPanel .bar").each(function(){
+				//console.log($(this).attr("style"));
+				//alert("hello world");
+				var oldAttr =$(this).attr("style");
+				var subOldAttr = oldAttr.split(";");
+				//console.log(subOldAttr[0]);
+				//console.log(subOldAttr[1]);
+				//console.log(subOldAttr[2]);
+				var numMaginTop =parseInt(subOldAttr[1].substring("12"));
+				//console.log(numMaginTop);
+				//console.log("----------------");
+				var numPageNumMaginTop=(numNext-1)*384;
+				var NumPage = numMaginTop-numPageNumMaginTop;
+				
+				$(this).css({"margin-top":NumPage+"px"});
+			});
+			
+		},1000);
+			
+		
+		
+		}
+		
+	});
+	//callAjaxContent Machine here.
+
+		$.ajax({
+			url:'manufacturing_cate_job.jsp',
+			type:'get',
+			dataType:'json',
+			data:{'param_machine':''},
+			success:function(data){
+				//alert("select machine"+data);
+				var html="";
+				
+				html+="<option value=\"\">All-Machine</option>";
+				$.each(data,function(index,entryIndex){
+					//alert(entryIndex[0]);
+					html+="<option value='"+entryIndex[0]+"'>"+entryIndex[1]+"</option>";
+					
+					
+				});
+				//alert(html);
+				
+				$("#machine").empty();
+				$("select#machine").append(html);
+				
+				$(".listSelect").kendoDropDownList();
+				$("#machine").kendoDropDownList({width:250});
+			}
+		});//end ajax;
+		
+		//callAjaxContent Year here.
+		//$("select#year").empty();
+		setTimeout(function(){
+			
+			var d = new Date();
+			var yearCurrent=d.getFullYear();
+			var htmlYear="";
+			htmlYear+="<option value=\"\">All-Year</option>";
+			htmlYear+="<option value='"+(yearCurrent+1)+"'>"+(yearCurrent+1)+"</option>";
+			for(var i=0; i<10; i++){
+				htmlYear+="<option value='"+(yearCurrent-i)+"'>"+(yearCurrent-i)+"</option>";
+			}
+			$("select#year").html(htmlYear);
+		
+		},1000);
+	
+	
+		
+		//ajax Start
+
+		$("#loading").ajaxStart(function(){
+		var	width = $("body").width();
+			width = (width/2)-20;
+			hieght =18;
+			
+			$(this).fadeIn();
+
+		$(this).css({"top":hieght+"px","left":width}).show();
+		});
+		//ajax Stop
+		$("#loading").ajaxStop(function(){
+		$(this).fadeOut();
+		}); 
+		
+		//tooltip
+		var tooltip = function(){
+			setTimeout(function(){
+			//$("#loading").show();
+			//console.log($(".bar>.fn-label>.detailJob").get());
+			
+			var titleJob ="";
+			$(".bar>.fn-label>.detailJob").hover(function(e){
+				titleJob =$(this).attr("title");
+				
+				var leftPosition=e.pageX+10;
+				var topPosition = e.pageY+10;
+				
+				$("#tooltip").html(titleJob);
+				$("#tooltip").css({"top":topPosition+"px","left":leftPosition+"px"}).addClass("fontTooltip").show();
+				
+				$(this).data('title', $(this).attr('title'));
+		        $(this).removeAttr('title');
+			},function(){
+				
+				$("#tooltip").hide();
+				 $(this).attr('title', $(this).data('title'));
+			});
+			},1000);
+		}
+		
+		setTimeout(function(){
+			tooltip();
+		},3000);
+			
+		
+		
+		var to_date_value;
+		var from_date_value;
+		$("#year").change(function(){
+			$("#to_date").val("");
+			$("#from_date").val("");
+		});
+		
+		$(".k-icon-calendar").click(function(){
+			$(".listSelect>.k-dropdown-wrap>.k-input").text("All-Year");
+		});		
+	});
+
+    </script>
+
+<title>Manufacturing Dashboard</title>
+</head>
+<body>
+
+<div id="jobName"></div>
+<div id="selectDepartment"></div>
+<div id="dialogBox" title="ผลการค้นหา">
+	<div id="searchGrid">
+	
+	</div>
+
+	
+</div>
+
+<div id="loading">Loading....</div>
+<div id="body">
+	<div id="tabs">
+		<ul>
+			<li>
+				<a href="#content1">Manufacturing Dashboard</a>
+			</li>
+			
+		</ul>
+		<div id="content1">
+		<div id="plantArea" style="padding:5px;">
+
+			<b>Machine</b> : <select name="machine" id="machine" >
+			<option value="all_machine">All-Machine</option>
+			<!--  
+			<option value="Machine1">Machine1</option>
+			<option value="Machine2">Machine2</option>
+			-->
+			
+			</select>
+			<!-- from date area-->
+			<b>Month From</b> : <input type="text" id="from_date" name="from_date" class="date" value=''>
+			<!-- to date area -->
+			<b>Month To</b> : <input type="text" id="to_date" name="to_date" class="date" value=''>
+			<!-- department area -->
+			<b>Year</b> : <select name="year" id="year" class="listSelect">
+			
+			<option value="all_year">All-Year</option>
+			<!--  
+			<option value="2011">2011</option>
+			<option value="2012">2012</option>
+			-->
+			</select>
+			
+			<!-- search area -->
+			<!--  
+	        <b> Search: </b><input type="text" name="search1" id="search1"/>
+	        <input type="submit" id="submit1" name="submit1" value="ค้นหา"/>
+	        -->
+	        <button id="submit1"> &nbsp; OK  &nbsp;</button>
+		</div>
+				<!-- Dash board Content-->
+				<div id="content">
+				
+				<!-- box-->
+					<div class="box">
+						<div class="head">
+							<div class="title">
+							
+							</div>
+                                                        <div class="percen-work-load">
+                                                        <!-- 
+                                                        <div id="jobload">
+                                                         Work Load: <span id="jobLoadResult"></span> Jobs(<span id="jobLoadPercentage" class="redColor">--%</span>)
+                                                         </div>
+                                                         
+                                                         <div id="jobComplete">
+                                                         Work Complete: <span id="jobcompeleteResult"></span> Jobs(<span id="jobCompletePercentage" class="greenColor">--%</span>)
+                                                         </div>
+                                                        -->
+                                                        </div>
+                                                        <div id="select_veiw">
+                                                        <b>View</b>:
+                                                        <select id="select_veiw_id" class="listSelect">
+                                                        	<option value='months'>Months</option>
+                                                        	<option value='weeks'>Weeks</option>
+                                                        	<option value='days' selected>Days</option>
+                                                        	<!--<option value='hours'>Hours</option>-->
+                                                        </select>
+                                                        </div>
+						</div>
+						<div class="content">
+						<!-- schedule plan machine -->
+						   <div class="gantt"></div>
+						<!-- schedule plan machine-->
+							
+						</div>
+					</div>
+				<!-- box-->
+
+				</div>
+				<!-- content1-->
+				<!-- Dash board Content-->
+				<br style="clear:both">
+				
+			</div>
+			
+				
+	</div>
+	
+</div>
+<div id="tooltip">test Tooltip here</div>
+
+
+</body>
+</html>
